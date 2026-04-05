@@ -424,31 +424,26 @@ def build_use():
         "print(f'Working dir: {os.getcwd()}')"
     ))
 
-    # ── Write source files ─────────────────────────────────────────
+    # ── Download model ─────────────────────────────────────────────
 
     cells.append(md(
-        "## 2. Download Model & Write Source\n"
+        "## 2. Download Model\n"
         "\n"
-        "Download the pre-trained weights from HuggingFace and write the inference code."
+        "Download everything from HuggingFace — weights, config, tokenizer, and inference code."
     ))
 
-    # Write model source files needed for inference
-    for display_name in ["config.py", "model.py", "inference.py"]:
-        src_path = f"guppylm/{display_name}"
-        full_path = os.path.join(PROJECT_ROOT, src_path)
-        content = read_for_colab(full_path)
-        cells.append(code(f"%%writefile {display_name}\n{content}"))
-
     cells.append(code(
-        "from huggingface_hub import hf_hub_download\n"
+        "from huggingface_hub import snapshot_download\n"
         "\n"
         "HF_REPO = 'arman-bd/guppylm-9M'\n"
         "\n"
-        "for filename in ['pytorch_model.bin', 'config.json', 'tokenizer.json']:\n"
-        "    hf_hub_download(repo_id=HF_REPO, filename=filename, local_dir='.')\n"
-        "    print(f'  Downloaded {filename}')\n"
+        "snapshot_download(repo_id=HF_REPO, local_dir='.')\n"
+        "print(f'Downloaded {HF_REPO}')\n"
         "\n"
-        "print(f'Model ready from {HF_REPO}')"
+        "import os\n"
+        "for f in os.listdir('.'):\n"
+        "    if not f.startswith('.'):\n"
+        "        print(f'  {f}')"
     ))
 
     # ── Chat ───────────────────────────────────────────────────────
