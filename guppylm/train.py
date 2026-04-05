@@ -1,4 +1,4 @@
-"""GobyLLM training loop with early exit diagnostics."""
+"""GuppyLM training loop."""
 
 import json
 import math
@@ -7,9 +7,9 @@ import time
 
 import torch
 
-from .config import GobyConfig, TrainConfig
+from .config import GuppyConfig, TrainConfig
 from .dataset import get_dataloader
-from .model import GobyLLM
+from .model import GuppyLM
 
 
 def get_device(config):
@@ -30,17 +30,10 @@ def get_lr(step, config):
     return config.min_lr + (config.learning_rate - config.min_lr) * coeff
 
 
-# ── Evaluation ──────────────────────────────────────────────────────────
-
-
 @torch.no_grad()
 def evaluate(model, loader, device, max_batches=50):
-    """Evaluate loss and measure early exit behavior."""
-
     model.eval()
     total_loss, n = 0, 0
-    exit_layer_sum, exit_count = 0, 0
-
     for x, y in loader:
         if n >= max_batches:
             break
@@ -48,25 +41,12 @@ def evaluate(model, loader, device, max_batches=50):
         _, loss = model(x, y)
         total_loss += loss.item()
         n += 1
-
-        # Measure exit layers on a few samples
-        if n <= 5 and x.shape[0] > 0:
-            sample = x[0:1, :64]  # first sample, first 64 tokens
-            _, exits = model.generate(sample, max_new_tokens=8)
-            exit_layer_sum += sum(exits)
-            exit_count += len(exits)
-
     model.train()
-    avg_loss = total_loss / max(1, n)
-    avg_exit = exit_layer_sum / max(1, exit_count)
-    return avg_loss, avg_exit
-
-
-# ── Training loop ───────────────────────────────────────────────────────
+    return total_loss / max(1, n)
 
 
 def train():
-    mc = GobyConfig()
+    mc = GuppyConfig()
     tc = TrainConfig()
     device = get_device(tc)
     torch.manual_seed(tc.seed)
@@ -74,7 +54,7 @@ def train():
     print(f"Device: {device}")
 
     tokenizer_path = os.path.join(tc.data_dir, "tokenizer.json")
-    model = GobyLLM(mc).to(device)
+    model = GuppyLM(mc).to(device)
     print(model.param_summary())
 
     train_loader = get_dataloader(
@@ -104,9 +84,9 @@ def train():
     losses = []
     t0 = time.time()
 
-    print(f"\nTraining for {tc.max_steps} steps (early_exit={mc.early_exit})...")
-    print(f"{'Step':>6} | {'LR':>10} | {'Train':>10} | {'Eval':>10} | {'AvgExit':>8} | {'Time':>8}")
-    print("-" * 72)
+    print(f"\nTraining for {tc.max_steps} steps...")
+    print(f"{'Step':>6} | {'LR':>10} | {'Train':>10} | {'Eval':>10} | {'Time':>8}")
+    print("-" * 56)
 
     while step < tc.max_steps:
         for x, y in train_loader:
@@ -138,14 +118,13 @@ def train():
             if step % 100 == 0:
                 avg = sum(losses[-100:]) / len(losses[-100:])
                 elapsed = time.time() - t0
-                print(f"{step:6d} | {lr:10.6f} | {avg:10.4f} | {'--':>10} | {'--':>8} | {elapsed:7.1f}s")
+                print(f"{step:6d} | {lr:10.6f} | {avg:10.4f} | {'--':>10} | {elapsed:7.1f}s")
 
             if step > 0 and step % tc.eval_interval == 0:
-                el, avg_exit = evaluate(model, eval_loader, device)
+                el = evaluate(model, eval_loader, device)
                 avg_train = sum(losses[-tc.eval_interval:]) / min(len(losses), tc.eval_interval)
                 elapsed = time.time() - t0
-                exit_str = f"{avg_exit:.1f}/{mc.n_layers}" if mc.early_exit else "off"
-                print(f"{step:6d} | {lr:10.6f} | {avg_train:10.4f} | {el:10.4f} | {exit_str:>8} | {elapsed:7.1f}s")
+                print(f"{step:6d} | {lr:10.6f} | {avg_train:10.4f} | {el:10.4f} | {elapsed:7.1f}s")
 
                 if el < best_eval:
                     best_eval = el
@@ -155,7 +134,7 @@ def train():
                         "config": vars(mc),
                         "eval_loss": el,
                     }, os.path.join(tc.output_dir, "best_model.pt"))
-                    print(f"  -> Best model (eval={el:.4f}, avg_exit={exit_str})")
+                    print(f"  -> Best model (eval={el:.4f})")
 
             if step > 0 and step % tc.save_interval == 0:
                 torch.save({

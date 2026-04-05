@@ -1,4 +1,4 @@
-"""GobyLLM dataset loading."""
+"""GuppyLM dataset loading."""
 
 import json
 
@@ -7,7 +7,7 @@ from torch.utils.data import Dataset, DataLoader
 from tokenizers import Tokenizer
 
 
-class GobyDataset(Dataset):
+class GuppyDataset(Dataset):
     def __init__(self, path: str, tokenizer_path: str, max_len: int = 512):
         self.tokenizer = Tokenizer.from_file(tokenizer_path)
         self.max_len = max_len
@@ -44,7 +44,7 @@ def collate_fn(batch, pad_id=0):
 
 
 def get_dataloader(path, tokenizer_path, max_len=512, batch_size=32, shuffle=True):
-    dataset = GobyDataset(path, tokenizer_path, max_len)
+    dataset = GuppyDataset(path, tokenizer_path, max_len)
     return DataLoader(
         dataset, batch_size=batch_size, shuffle=shuffle,
         collate_fn=collate_fn, num_workers=0, pin_memory=True,

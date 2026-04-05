@@ -1,18 +1,10 @@
 # ── Generated data & models ─────────────────────────────────
 data/
+dataset/
 checkpoints/
 *.pt
 *.bin
-*.goby
 *.onnx
-
-# ── Compiled binaries ──────────────────────────────────────
-csrc/goby
-csrc/goby_debug
-*.o
-*.so
-*.dylib
-*.out
 
 # ── Python ──────────────────────────────────────────────────
 venv/
@@ -49,6 +41,9 @@ Desktop.ini
 .settings/
 *.sublime-project
 *.sublime-workspace
+
+# ── Secrets ──────────────────────────────────────────────────
+.env
 
 # ── Logs & temp ─────────────────────────────────────────────
 *.log

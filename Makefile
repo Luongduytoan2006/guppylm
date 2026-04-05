@@ -1,12 +1,4 @@
-.PHONY: all clean goby notebook
-
-all: goby
-
-goby:
-	$(MAKE) -C csrc
-
-clean:
-	$(MAKE) -C csrc clean
+.PHONY: notebook
 
 notebook:
 	python3 tools/make_colab.py
