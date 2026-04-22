@@ -1,0 +1,188 @@
+Bạn đóng vai một software engineer senior kiêm system analyst.
+
+Nhiệm vụ của bạn là quét và phân tích TOÀN BỘ folder dự án mà tôi cung cấp, không chỉ đọc mỗi README.
+
+## Mục tiêu
+Tôi muốn nhanh chóng hiểu một codebase lạ theo hướng thực dụng, dễ chạy, dễ nắm luồng.
+
+Bạn BẮT BUỘC phải:
+1. Đọc `README.md` trước nếu có.
+2. Sau đó quét toàn bộ cấu trúc thư mục một cách đệ quy.
+3. Xác định cách chạy thực tế của dự án.
+4. Giải thích kiến trúc, module chính, luồng chạy, yêu cầu setup, pipeline hoạt động.
+5. Nếu README không đủ thì phải suy ra thêm từ code/config.
+6. Không mô tả hời hợt, phải lần theo các file quan trọng và mối liên hệ giữa chúng.
+7. Không được chạy dự án, không được docker compose. Just only read and analyze.
+
+---
+
+## Những gì tôi cần
+
+### 1. Tổng quan dự án
+- Dự án này dùng để làm gì?
+- Giải quyết bài toán gì?
+- Nó là loại ứng dụng gì? (web app, API, CLI, AI pipeline, desktop app, library, microservice, ...)
+- Tech stack chính là gì?
+
+### 2. Cách chạy dự án
+Xác định cách setup/run thực tế từ codebase:
+- Là Python, JavaScript/TypeScript, Java, C#, Go, Rust...?
+- Dùng package manager/build tool nào? (`pip`, `poetry`, `uv`, `npm`, `pnpm`, `yarn`, `maven`, `gradle`, `dotnet`, ...)
+- Lệnh cài dependency
+- Lệnh chạy dev
+- Lệnh build/run production nếu thấy
+- Lệnh test nếu có
+
+Nếu có nhiều cách chạy thì tách rõ:
+- chạy local
+- chạy Docker
+- chạy Docker Compose
+- chạy qua script
+
+### 3. Environment và config
+Tìm tất cả config quan trọng:
+- `.env`, `.env.example`, `config.py`, `settings.py`, `application.yml`, `appsettings.json`, biến môi trường trong docker...
+- Liệt kê các env var có thể phát hiện được
+- Đánh dấu biến nào có vẻ bắt buộc, biến nào tùy chọn
+- Xác định API key, token, DB URL, khóa LLM, model path... nếu có
+- Giải thích công dụng từng biến nếu suy ra được
+
+### 4. Docker / triển khai
+Kiểm tra xem dự án có:
+- `Dockerfile`
+- `docker-compose.yml` / `compose.yml`
+- script deploy
+- CI/CD (`.github/workflows`, ...)
+
+Giải thích:
+- có hỗ trợ Docker không
+- chạy bằng Docker như nào
+- có các service nào (app, db, redis, vector db, pgadmin, ollama, ...)
+- mở cổng nào
+- mount volume nào
+- service nào phụ thuộc service nào
+
+### 5. Phụ trợ và yêu cầu ngoài
+Xác định xem dự án có cần thêm gì ngoài package install thông thường:
+- database
+- Redis
+- message queue
+- file model local
+- Ollama
+- model Hugging Face
+- CUDA/GPU
+- ffmpeg
+- LibreOffice
+- Poppler
+- Tesseract
+- Java runtime
+- .NET SDK
+- Node version
+- Python version
+- yêu cầu hệ điều hành
+
+Ngoài ra hãy nói rõ nếu dự án có vẻ cần:
+- tải pretrained model
+- gọi API ngoài
+- dùng provider LLM
+- dùng cloud credential
+
+### 6. Cấu trúc folder chính
+Giải thích cấu trúc thư mục mức cao:
+- các folder root và vai trò
+- file entry point
+- file config quan trọng
+- module/service/package chính
+- folder nào là business logic cốt lõi
+- folder nào là infra/data/UI/API/tests/scripts/docs
+
+Không chỉ liệt kê tên, phải giải thích vai trò thực tế.
+
+### 7. Luồng chạy chính / pipeline chính
+Tôi muốn luồng hoạt động thực tế của dự án.
+
+Hãy lần theo các flow quan trọng như:
+- từ request người dùng tới response
+- từ route API tới service tới database
+- từ thao tác UI tới backend
+- từ input file tới pipeline xử lý tới output
+- từ startup bootstrapping tới các runtime component
+- từ request model inference tới kết quả
+- từ queue/event tới consumer xử lý
+
+Với mỗi flow quan trọng, hãy nêu:
+- điểm kích hoạt
+- file/module chính tham gia
+- thứ tự thực thi
+- kết quả đầu ra
+
+Nếu được thì trình bày kiểu:
+1. người dùng / input / action
+2. entry file / route / command
+3. service / processing layer
+4. database / model / external call
+5. response / output
+
+### 8. Những file tôi nên đọc đầu tiên
+Hãy cho tôi thứ tự ưu tiên đọc:
+- top 5 đến 15 file nên đọc trước
+- giải thích vì sao mỗi file quan trọng
+- ưu tiên các file “entry” để hiểu dự án nhanh nhất
+
+### 9. Vấn đề / cảnh báo / chỗ dễ lỗi
+Phát hiện các rủi ro có thể có:
+- thiếu `.env.example`
+- env không được document
+- hardcode path
+- phụ thuộc file local mà repo không chứa
+- model không nằm trong repo
+- Docker chưa hoàn chỉnh
+- nhiều package manager lẫn lộn
+- thiếu migration/seed
+- README không khớp code
+- dead code / script cũ
+
+### 10. Tóm tắt quick-start cho tôi
+Cuối cùng hãy cho tôi:
+- con đường ngắn nhất để chạy project
+- tôi cần cài gì trước
+- file nào cần sửa trước
+- lệnh nào nên chạy đầu tiên
+- lỗi nào tôi dễ gặp nhất
+
+---
+
+## Quy tắc phân tích
+- KHÔNG được chỉ tóm tắt README.
+- Phải kiểm tra lại bằng code và file config.
+- Nếu README mâu thuẫn code, phải chỉ ra rõ.
+- Phải cụ thể: nêu tên file, tên folder, command, env var, port thật sự nếu thấy.
+- Nếu nội dung là suy luận chứ không chắc chắn, phải ghi rõ là “suy ra từ code”.
+- Nếu là monorepo hoặc nhiều app/service thì phải tách riêng từng phần.
+- Ưu tiên hiểu theo hướng thực chiến, không lan man lý thuyết.
+
+---
+
+## Format trả lời
+Trả lời đúng format sau:
+
+# 1. Tổng quan dự án
+# 2. Tech stack
+# 3. Cách chạy
+## 3.1 Local
+## 3.2 Docker
+## 3.3 Test
+# 4. Environment variables và config
+# 5. Ports, services, database, external dependencies
+# 6. Giải thích cấu trúc folder
+# 7. Luồng chạy chính / pipeline chính
+# 8. Những file nên đọc đầu tiên
+# 9. Rủi ro / thiếu sót / chỗ cần lưu ý
+# 10. Checklist quick-start
+
+Cuối cùng thêm:
+- “Mức độ chắc chắn”
+- “Những gì đã xác nhận rõ từ code”
+- “Những gì là suy luận / cần kiểm tra thêm”
+
+Bây giờ hãy bắt đầu bằng việc đọc README.md trước, rồi quét toàn bộ folder dự án.
